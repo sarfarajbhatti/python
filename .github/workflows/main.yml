@@ -1,14 +1,12 @@
-name: Python CI Workflow
+name: Python File Writer CI
 
 on:
 
   push:
-    branches:
-      - main
+    branches: ["main"]
 
   pull_request:
-    branches:
-      - main
+    branches: ["main"]
 
 jobs:
 
@@ -18,19 +16,43 @@ jobs:
 
     steps:
 
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v4
 
         with:
-          python-version: "3.12"
+          python-version: "3.10"
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt
+          pip install pytest
 
-      - name: Run Pytest
+      - name: Run tests
         run: |
           pytest test_file_writer.py
+
+      - name: Notify Success Via Email
+        if: success()
+
+        uses: dawidd6/action-send-mail@v3
+
+        with:
+          server_address: smtp.gmail.com
+          server_port: 587
+
+          username: ${{ secrets.SARFRAAZZ }}
+          password: ${{ secrets.bhatti725683123 }}
+
+          subject: "CI Build Success - ${{ github.repository }}"
+
+          body: |
+            The build for ${{ github.repository }}
+            on branch ${{ github.ref_name }}
+            succeeded.
+
+            Commit: ${{ github.sha }}
+
+          to: bhattisarfarajkhan97@gmail.com
+          from: bhattisarfaraj9@gmail.com
