@@ -4,7 +4,6 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 on:
-
   push:
     branches:
       - main
@@ -13,53 +12,62 @@ on:
     branches:
       - main
 
-
 jobs:
-
   test:
-
     runs-on: ubuntu-latest
 
     steps:
 
-      # Checkout repository
+      # Step 1 - Checkout Repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
-
-      # Setup latest Python
+      # Step 2 - Setup Python
       - name: Setup Python
         uses: actions/setup-python@v5
-
         with:
           python-version: "3.12"
 
-
-      # Install dependencies
+      # Step 3 - Install Dependencies
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytest
 
-
-      # Run tests
+      # Step 4 - Run Tests
       - name: Run Tests
         run: |
           pytest test_file_writer.py
 
+      # Step 5 - Create Source Folder
+      - name: Create Source Folder
+        run: |
+          mkdir -p src
+          cp *.py src/
 
-      # Send Success Email
+      # Step 6 - Package Build Output as ZIP
+      - name: Package Build Output
+        run: |
+          mkdir -p output
+          cp -r src output/
+          zip -r build.zip output
+
+      # Step 7 - Upload Build Artifact
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-zip
+          path: build.zip
+
+      # Step 8 - Send Success Email
       - name: Notify Success Via Email
-
         if: success()
 
         uses: dawidd6/action-send-mail@v4
 
         with:
-
           server_address: smtp.gmail.com
           server_port: 587
-
           secure: false
 
           username: ${{ secrets.EMAIL_USERNAME }}
@@ -79,9 +87,12 @@ jobs:
             Commit SHA:
             ${{ github.sha }}
 
-            Triggered By:
-            ${{ github.actor }}
+            ✔ Test Cases Passed
+            ✔ ZIP Artifact Created
+            ✔ Artifact Uploaded Successfully
+
+            Download Artifact:
+            ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
 
           to: bhattisarfarajkhan97@gmail.com
-
           from: ${{ secrets.EMAIL_USERNAME }}
