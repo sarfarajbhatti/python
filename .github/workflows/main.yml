@@ -42,8 +42,8 @@ jobs:
           server_address: smtp.gmail.com
           server_port: 587
 
-          username: ${{ secrets.SARFRAAZZ }}
-          password: ${{ secrets.bhatti725683123 }}
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
 
           subject: "CI Build Success - ${{ github.repository }}"
 
