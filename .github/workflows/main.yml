@@ -1,15 +1,13 @@
 name: Python File Writer CI
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 on:
 
   push:
     branches:
       - main
-
-  pull_request:
-    branches:
-      - main
-
 
 jobs:
 
@@ -19,35 +17,25 @@ jobs:
 
     steps:
 
-      # Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
-
-      # Setup latest Python
       - name: Setup Python
         uses: actions/setup-python@v5
 
         with:
           python-version: "3.12"
 
-
-      # Install dependencies
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
           pip install pytest
 
-
-      # Run tests
       - name: Run Tests
         run: |
           pytest test_file_writer.py
 
-
-      # Send Success Email
-      - name: Notify Success Via Email
-
+      - name: Send Success Email
         if: success()
 
         uses: dawidd6/action-send-mail@v4
@@ -62,20 +50,10 @@ jobs:
           username: ${{ secrets.EMAIL_USERNAME }}
           password: ${{ secrets.EMAIL_PASSWORD }}
 
-          subject: "CI Build Success - ${{ github.repository }}"
+          subject: "CI Build Success"
 
           body: |
-            ✅ CI Workflow Completed Successfully
-
-            Repository: ${{ github.repository }}
-
-            Branch: ${{ github.ref_name }}
-
-            Commit SHA:
-            ${{ github.sha }}
-
-            Triggered By:
-            ${{ github.actor }}
+            Workflow completed successfully.
 
           to: bhattisarfarajkhan97@gmail.com
 
